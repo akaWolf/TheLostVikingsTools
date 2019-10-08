@@ -288,6 +288,9 @@ static void draw_level_objects(SDL_Surface *surf)
 
         if (obj->flags & LV_OBJ_FLAG_NO_DRAW)
             continue;
+		// FIXME xoff, yoff should be signed
+		if ((int)obj->xoff < 0 || (int)obj->yoff < 0)
+		  continue;
 
         r.x = obj->xoff - (obj->width / 2);
         r.y = obj->yoff - (obj->height / 2);
