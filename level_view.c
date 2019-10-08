@@ -423,7 +423,8 @@ static void main_loop(SDL_Surface *surf_map, SDL_Surface *surf_tileset)
                     break;
 
                 case SDLK_RIGHT:
-                    if (xoff < (level.width * PREFAB_WIDTH) - screen->w) {
+				    if (screen->w < (level.width * PREFAB_WIDTH) &&
+						xoff < (level.width * PREFAB_WIDTH) - screen->w) {
                         xoff += PREFAB_WIDTH;
                         needs_redraw = true;
                     }
@@ -437,7 +438,8 @@ static void main_loop(SDL_Surface *surf_map, SDL_Surface *surf_tileset)
                     break;
 
                 case SDLK_DOWN:
-                    if (yoff < (level.height * PREFAB_HEIGHT) - screen->h) {
+				    if (screen->h < (level.height * PREFAB_HEIGHT) &&
+					    yoff < (level.height * PREFAB_HEIGHT) - screen->h) {
                         yoff += PREFAB_HEIGHT;
                         needs_redraw = true;
                     }
