@@ -293,7 +293,20 @@ static void draw_level_objects(SDL_Surface *surf)
 		  continue;
 
         r.x = obj->xoff - (obj->width / 2);
+		if (obj->xoff < (obj->width / 2)) {
+		  // FIXME 15 lvl
+		  // 8 32 // 226 32
+		  // wrong xoff!
+		  printf("%i %i\n%i %i\n", obj->xoff, obj->width, obj->yoff, obj->height);
+		  r.x = 0;
+		}
         r.y = obj->yoff - (obj->height / 2);
+		if (obj->yoff < (obj->height / 2)) {
+		  // FIXME 38 lvl
+		  printf("%i %i\n%i %i\n", obj->xoff, obj->width, obj->yoff, obj->height);
+		  r.y = 0;
+		}
+
         r.w = obj->width;
         r.h = obj->height;
 
