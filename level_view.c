@@ -173,6 +173,8 @@ static SDL_Surface *load_tileset(unsigned chunk_index)
     int i;
 
     chunk = lv_pack_get_chunk(&pack, chunk_index);
+    if (!chunk)
+        return 0;
     lv_decompress_chunk(chunk, &data);
 
     /* Tilesets are 8x8 */
@@ -323,6 +325,8 @@ static void draw_level_objects(SDL_Surface *surf)
                                          &r,
                                          obj->flags & LV_OBJ_FLAG_FLIP_HORIZ);
                 break;
+            default:
+			  printf("Skipping object (sprite set) %d\n", i);
             }
 
         } else {
@@ -345,6 +349,7 @@ static void draw_level_objects(SDL_Surface *surf)
                 break;
 
             default:
+			  printf("Skipping draw of object %d\n", i);
                 break;
             }
         }
@@ -386,7 +391,7 @@ static void draw_level(SDL_Surface *surf, SDL_Surface *surf_tileset)
         for (y = 0; y < level.height; y++) {
             for (x = 0; x < level.width; x++) {
                 prefab = lv_level_get_prefab_at(&level, x, y, NULL, &flags);
-                if (prefab)
+                if (prefab && surf_tileset)
                     draw_prefab(surf, surf_tileset, prefab, false,
                                 x * PREFAB_WIDTH, y * PREFAB_HEIGHT);
             }
@@ -671,7 +676,7 @@ int main(int argc, char **argv)
     else
         printf("    Level size:     %dx%d\n", level.width, level.height);
 
-    screen = sdl_init(640, 480);
+    screen = sdl_init(960, 960);
 
     SDL_EnableKeyRepeat(250, 50);
 

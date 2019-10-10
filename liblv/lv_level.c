@@ -50,17 +50,17 @@ static const struct lv_level_info lv_level_info[] = {
     {206, 449}, {208, 449}, {210, 449}, {212, 449},
 
     /* Special levels */
-    {369, 0xffff}, /* Respawn screen */
-    {381, 454},
-    {390, 454}, /* Interplay logo */
-    {396, 454}, /* Silicon & Synapse logo */
-    {402, 454}, /* Timewarp */
-    {382, 454},
-    {431, 454}, /* Vikings home (intro) */
-    {432, 454}, /* Vikings home (demo) */
-    {433, 454},
-    {434, 454}, /* Vikings home (ending?) */
-    {218, 454}, /* Viking ship ending */
+    {369, 0xffff}, /* Respawn screen -- 38 */
+    {381, 454}, /* 39 */
+    {390, 454}, /* Interplay logo -- 40 */
+    {396, 454}, /* Silicon & Synapse logo -- 41 */
+    {402, 454}, /* Timewarp -- 42 */
+    {382, 454}, /* 43 */
+    {431, 454}, /* Vikings home (intro) -- 44 */
+    {432, 454}, /* Vikings home (demo) -- 45 */
+    {433, 454}, /* 46 */
+    {434, 454}, /* Vikings home (ending?) -- 47 */
+    {218, 454}, /* Viking ship ending -- 48 */
 };
 
 /* These are hardcoded in BTHORNE.EXE */
@@ -127,6 +127,10 @@ static int add_object(struct lv_level *level, unsigned type,
     obj->arg    = arg;
 
     level->num_objects++;
+
+    lv_debug(LV_DEBUG_LEVEL, "  [%.2zx] type=%.4x, pos=(%4d,%4d), size=(%4d,%4d), flags=%.4x, arg=%.4x",
+        level->num_objects, type, xoff, yoff, width, height, flags, arg);
+
     return 0;
 }
 
@@ -186,6 +190,8 @@ int lv_load_tile_prefabs(struct lv_pack *pack,
     int i, j, base;
 
     chunk = lv_pack_get_chunk(pack, chunk_index);
+    if (!chunk)
+        return 1;
     lv_decompress_chunk(chunk, &data);
     buffer_init_from_data(&buf, data, chunk->decompressed_size);
 
@@ -297,6 +303,7 @@ static int load_lv_header(struct lv_pack *pack, struct lv_level *level,
     lv_load_tile_prefabs(pack, &level->prefabs, &level->num_prefabs,
 			 chunk_prefabs);
 
+    lv_debug(LV_DEBUG_LEVEL, "Loading Vikings:");
     /*
      * The start position selector either selects from a bunch of
      * hardcoded positions from VIKINGS.EXE or specifies the position
@@ -379,10 +386,6 @@ static int load_objects(struct lv_level *level, struct buffer *buf)
 
         add_object(level, type, xoff, yoff, half_width * 2, half_height * 2,
                    flags, arg);
-
-        lv_debug(LV_DEBUG_LEVEL, "  [%.2zx] type=%.4x, pos=(%4d,%4d), size=(%4d,%4d), flags=%.4x, arg=%.4x",
-                 level->num_objects, type, xoff, yoff, half_width * 2,
-                 half_height * 2, flags, arg);
     }
 
     return 0;
@@ -539,7 +542,7 @@ static int load_unpacked_sprite_sets(struct lv_pack *pack,
      *
      * The maximum combined data size of all chunks is 0x7000 bytes.
      */
-    lv_debug(LV_DEBUG_LEVEL, "Loading unpacked sprite sets:");
+    lv_debug(LV_DEBUG_LEVEL, "Loading unpacked/masked sprite sets:");
     while (1) {
         buffer_get_le16(buf, &chunk_index);
         if (chunk_index == 0xffff)
@@ -584,7 +587,7 @@ static int load_sprite32_sets(struct lv_pack *pack, struct lv_level *level,
      *   [03]  u8: Unknown
      *   [04]  u8: Unknown
      */
-    lv_debug(LV_DEBUG_LEVEL, "Loading 32x32 sprite sets:");
+    lv_debug(LV_DEBUG_LEVEL, "Loading packed 32x32 sprite sets:");
     while (1) {
         buffer_get_le16(buf, &chunk_index);
         if (chunk_index == 0xffff)
@@ -616,7 +619,7 @@ static void update_unpacked_sprite_sets(struct lv_level *level)
     size_t tile_size, sprite_size;
     int i, j;
 
-    lv_debug(LV_DEBUG_LEVEL, "Updating unpacked sprite sets:");
+    lv_debug(LV_DEBUG_LEVEL, "Updating unpacked/masked sprite sets:");
     for (i = 0; i < level->num_objects; i++) {
         obj = &level->objects[i];
 
@@ -648,7 +651,7 @@ static void update_unpacked_sprite_sets(struct lv_level *level)
              * have 9 bytes per 8 pixels (mask + pixel data).
              */
             tile_size = min(obj->width, obj->height);
-	    sprite_size = lv_sprite_data_size(LV_SPRITE_FORMAT_UNPACKED,
+            sprite_size = lv_sprite_data_size(LV_SPRITE_FORMAT_UNPACKED,
                                               tile_size, tile_size);
             if (sprite_size == 0)
                 continue;
