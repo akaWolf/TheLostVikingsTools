@@ -49,12 +49,10 @@ static const struct lv_level_info lv_level_info[] = {
     /* World 6 - Spaceship */
     {206, 449}, {208, 449}, {210, 449}, {212, 449},
 
-    /* Special level? */
-    {369, 0xffff},
-
     /* Special levels */
+    {369, 0xffff}, /* Respawn screen */
     {381, 454},
-    {390, 454},
+    {390, 454}, /* Interplay logo */
     {396, 454}, /* Silicon & Synapse logo */
     {402, 454}, /* Timewarp */
     {382, 454},
@@ -257,7 +255,16 @@ static int load_lv_header(struct lv_pack *pack, struct lv_level *level,
      *
      */
     lv_debug(LV_DEBUG_LEVEL, "Loading header:");
-    buffer_seek(buf, 0x07);
+    buffer_get_le16(buf, &dummy_16);
+    lv_debug(LV_DEBUG_LEVEL, "  ?:             %.4x", dummy_16);
+    buffer_get_le16(buf, &dummy_16);
+    lv_debug(LV_DEBUG_LEVEL, "  ?:             %.4x", dummy_16);
+    buffer_get_u8(buf, &dummy);
+    lv_debug(LV_DEBUG_LEVEL, "  ?:             %.2x", dummy);
+    buffer_get_u8(buf, &dummy);
+    lv_debug(LV_DEBUG_LEVEL, "  World number:  %d", dummy);
+    buffer_get_u8(buf, &dummy);
+    lv_debug(LV_DEBUG_LEVEL, "  Render flag?:  %d", dummy);
     buffer_get_u8(buf, &start_pos_selector);
     buffer_get_le16(buf, &vikings_xoff);
     buffer_get_le16(buf, &vikings_yoff);
@@ -614,6 +621,8 @@ static void update_unpacked_sprite_sets(struct lv_level *level)
         obj = &level->objects[i];
 
         lv_object_db_get_object(&level->object_db, obj->type, &obj->db_entry);
+        if (obj->db_entry.chunk_sprites == LV_OBJECT_DB_SPRITES_PACKED)
+            lv_debug(LV_DEBUG_LEVEL, "  Skipping %d object with packed sprites", i);
         if (obj->db_entry.chunk_sprites == LV_OBJECT_DB_SPRITES_NONE ||
             obj->db_entry.chunk_sprites == LV_OBJECT_DB_SPRITES_PACKED)
             continue;
