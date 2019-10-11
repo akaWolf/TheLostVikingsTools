@@ -658,6 +658,10 @@ static void update_unpacked_sprite_sets(struct lv_level *level)
 
             set->format = LV_SPRITE_FORMAT_UNPACKED;
             set->num_sprites = set->data_size / sprite_size;
+            // FIXME sometimes data_size is less then sprite_size
+            // I guess sprite_size is miscalculated here
+            if (set->data_size && set->num_sprites == 0)
+                set->num_sprites = 1;
             set->sprites = calloc(set->data_size, sizeof(uint8_t *));
 
             for (j = 0; j < set->num_sprites; j++)

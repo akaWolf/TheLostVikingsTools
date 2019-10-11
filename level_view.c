@@ -349,7 +349,7 @@ static void draw_level_objects(SDL_Surface *surf)
                 break;
 
             default:
-			  printf("Skipping draw of object %d\n", i);
+                printf("Skipping draw of object %d\n", i);
                 break;
             }
         }
