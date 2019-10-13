@@ -38,8 +38,9 @@
 #define PREFAB_HEIGHT  16
 #define PREFAB_SIZE    (PREFAB_WIDTH * PREFAB_HEIGHT)
 
-#define COLOR_GRID         15
-#define COLOR_OBJECT_BOX   13
+#define COLOR_GRID             15
+#define COLOR_OBJECT_BOX       13
+#define COLOR_OBJECT_ERR_BOX   3
 
 static SDL_Surface *screen;
 
@@ -284,9 +285,11 @@ static void draw_level_objects(SDL_Surface *surf)
     unsigned frame_set, frame;
     SDL_Rect r;
     int i;
+    unsigned obj_skip;
 
     for (i = 0; i < level.num_objects; i++) {
         obj = &level.objects[i];
+        obj_skip = 0;
 
         if (obj->flags & LV_OBJ_FLAG_NO_DRAW)
             continue;
@@ -326,7 +329,8 @@ static void draw_level_objects(SDL_Surface *surf)
                                          obj->flags & LV_OBJ_FLAG_FLIP_HORIZ);
                 break;
             default:
-			  printf("Skipping object (sprite set) %d\n", i);
+                printf("Skipping object (sprite set) %d\n", i);
+                break;
             }
 
         } else {
@@ -350,6 +354,7 @@ static void draw_level_objects(SDL_Surface *surf)
 
             default:
                 printf("Skipping draw of object %d\n", i);
+                obj_skip = 1;
                 break;
             }
         }
@@ -361,7 +366,10 @@ static void draw_level_objects(SDL_Surface *surf)
             r.w = obj->width;
             r.h = obj->height;
 
-            sdl_empty_box(surf, &r, COLOR_OBJECT_BOX);
+            unsigned color = COLOR_OBJECT_BOX;
+            if (obj_skip)
+			  color = COLOR_OBJECT_ERR_BOX;
+            sdl_empty_box(surf, &r, color);
         }
     }
 }
