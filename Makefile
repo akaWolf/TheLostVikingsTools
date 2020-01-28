@@ -12,10 +12,10 @@
 # <http://creativecommons.org/publicdomain/zero/1.0/>.
 #
 
-CFLAGS = -g -Wall -I.
-LFLAGS = -lSDL
+CFLAGS = -g -Wall -I. $(shell sdl-config --cflags)
+LFLAGS = $(shell sdl-config --libs)
 
-liblv_dir := 		liblv	
+liblv_dir := 		liblv
 liblv_objs :=		liblv/buffer.o		\
 			liblv/lv_debug.o	\
 			liblv/lv_level.o 	\
